@@ -1,0 +1,348 @@
+---
+title: "Untitled"
+author: "Victor Tello Mercado"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    df_print: paged
+---
+
+###  Cargar librerias y base de datos "iris"
+```{r}
+library(ggplot2)
+library(scales)
+library(tidyverse)
+library(knitr)
+# cargar data frame
+data(iris)
+```
+
+
+###  Configurar rmarkdown y fijar directorio de trabajo
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, comment=" ", options(scipen=999, root.dir = "D:/ACTIVIDAD DE TITULACION I (2023)/GGPLOT2"))
+```
+
+
+###  Introducción a la librería GGPLOT2
+```{r pressure, echo=FALSE, fig.cap="A caption", out.width = "100%" }
+knitr::include_graphics("D:/ACTIVIDAD DE TITULACION I (2023)/GGPLOT2/Imagen1.jpg")
+```
+
+##  GRAFICAR CON GGPLOT POR ETAPAS
+
+###  Mostrar los primeros seis datos del data frame iris
+```{r}
+head(iris)
+```
+
+
+
+###  Indicar datos (data frame)
+```{r}
+ggplot(data=iris)
+```
+
+###  Se agrega capa de estética (aes)
+```{r}
+ggplot(data=iris, mapping=aes(x=Sepal.Length, y=Sepal.Width))
+```
+
+###  Se agrega capa de estética (aes)
+```{r}
+ggplot(data=iris, mapping=aes(x=Petal.Length,y=Petal.Width)) +
+  geom_point()
+```
+
+###  Se agrega capa de estética (aes)
+```{r}
+ggplot(data=iris, mapping=aes(x=Petal.Length,y=Petal.Width)) +
+  geom_point() +
+  geom_smooth(method="lm")
+```
+
+
+###  Usando colores (por Species)
+```{r}
+ggplot(data=iris,mapping=aes(x=Petal.Length,y=Petal.Width,color=Species))+
+  geom_point()+
+  geom_smooth(method="lm")
+```
+
+Si quisiéramos mantener una línea de regresión común manteniendo los colores para los puntos, podríamos especificar la estética del color solo para geom_point.
+
+```{r}
+ggplot(data=iris,mapping=aes(x=Petal.Length,y=Petal.Width))+
+  geom_point(aes(color=Species))+
+  geom_smooth(method="lm")
+```
+Podemos cambiar el tamaño de todos los puntos en una cantidad fija especificando el tamaño fuera del parámetro estético.
+
+```{r}
+ggplot(data=iris,mapping=aes(x=Petal.Length,y=Petal.Width))+
+  geom_point(aes(color=Species),size=3)+
+  geom_smooth(method="lm")
+```
+
+Podemos mapear otra variable como tamaño de los puntos. Esto se hace especificando el tamaño dentro del mapeo estético. Ahora el tamaño de los puntos denota Sepal.Width. Se crea un nuevo grupo de leyendas para mostrar esta nueva estética.
+
+```{r}
+ggplot(data=iris,mapping=aes(x=Petal.Length,y=Petal.Width))+
+  geom_point(aes(color=Species,size=Sepal.Width))+
+  geom_smooth(method="lm")
+```
+
+Podemos cambiar los colores predeterminados especificando nuevos valores dentro de una escala.
+
+```{r}
+ggplot(data=iris,mapping=aes(x=Petal.Length,y=Petal.Width))+
+  geom_point(aes(color=Species,size=Sepal.Width))+
+  geom_smooth(method="lm")+
+  scale_color_manual(values=c("red","blue","green"))
+```
+
+También podemos asignar los colores a una variable continua. Esto crea un elemento de leyenda de barra de color.
+
+```{r}
+ggplot(data=iris,mapping=aes(x=Petal.Length,y=Petal.Width))+
+  geom_point(aes(color=Sepal.Width))+
+  geom_smooth(method="lm")
+```
+
+###  Títulos
+
+Ahora cambiemos el nombre de las etiquetas de los ejes, cambiemos el título de la leyenda y agreguemos un título, un subtítulo y una leyenda. Cambiamos el título de la leyenda usando scale_color_continuous(). Todas las demás etiquetas se cambian mediante labs().
+
+```{r}
+ggplot(data=iris,mapping=aes(x=Petal.Length,y=Petal.Width))+
+  geom_point(aes(color=Sepal.Width))+
+  geom_smooth(method="lm")+
+  scale_color_continuous(name="Ancho de los sépalos")+
+  labs(title="Relación entre la longitud y el ancho de los pétalos",subtitle="Tres especies del género Iris",x="Longitud del Pétalo", 
+       y="Ancho del Pétalo", caption="Elaborado por Víctor Tello.")
+```
+
+###  Modificación delos ejes
+
+Digamos que no estamos contentos con que el eje x sea 2,4,6, etc. Nos gustaría tener 1,2,3… Cambiamos esto usando scale_x_continuous().
+
+```{r}
+ggplot(data=iris,mapping=aes(x=Petal.Length,y=Petal.Width))+
+  geom_point(aes(color=Sepal.Width))+
+  geom_smooth(method="lm")+
+  scale_color_continuous(name="Ancho de los sépalos")+
+  scale_x_continuous(breaks=1:8)+
+  labs(title="Relación entre la longitud y el ancho de los pétalos",subtitle="Tres especies del género Iris",x="Longitud del Pétalo", 
+       y="Ancho del Pétalo", caption="Elaborado por Víctor Tello.")
+```
+
+###  Filas y columnas de subplots (Faceting)
+```{r}
+ggplot(data=iris,mapping=aes(x=Petal.Length,y=Petal.Width))+
+  geom_point(aes(color=Sepal.Width))+
+  geom_smooth(method="lm")+
+  scale_color_continuous(name="Ancho de sépalos")+
+  scale_x_continuous(breaks=1:8)+
+  labs(title="Relación entre la longitud y el ancho de los pétalos",subtitle="Especies de Iris por separado",x="Longitud del Pétalo", 
+  y="Ancho del Pétalo", caption="Realizado con ggplot2 de R.")+
+  facet_wrap(~Species)
+```
+
+
+###  Temas (Themes)
+
+El aspecto de la trama se puede cambiar usando temas. Vamos a convertir el theme_grey() predeterminado en theme_bw().
+
+```{r}
+ggplot(data=iris,mapping=aes(x=Petal.Length,y=Petal.Width))+
+  geom_point(aes(color=Sepal.Width))+
+  geom_smooth(method="lm")+
+  scale_color_continuous(name="Ancho de sépalos")+
+  scale_x_continuous(breaks=1:8)+
+  labs(title="Relación entre la longitud y el ancho de los pétalos",subtitle="Especies de Iris por separado",x="Longitud del Pétalo", 
+  y="Ancho del Pétalo", caption="Realizado con ggplot2 de R.")+
+  facet_wrap(~Species)+
+  theme_bw()
+```
+
+Todos los aspectos de la trama no relacionados con los datos se pueden modificar a través de temas. Modifiquemos los colores de las etiquetas de título y desactivemos las líneas de cuadrícula. Se van a crear nuevas configuraciones y se asignarán a un objeto llamado "nuevotema"
+
+```{r}
+nuevotema <- theme(
+    axis.title=element_text(color="Blue",face="bold"),
+    plot.title=element_text(color="Green",face="bold"),
+    plot.subtitle=element_text(color="Red"),
+    panel.grid=element_blank())
+```
+
+
+```{r}
+ggplot(data=iris,mapping=aes(x=Petal.Length,y=Petal.Width))+
+  geom_point(aes(color=Sepal.Width))+
+  geom_smooth(method="lm")+
+  scale_color_continuous(name="Ancho de sépalos")+
+  scale_x_continuous(breaks=1:8)+
+  labs(title="Relación entre la longitud y el ancho de los pétalos",subtitle="Especies de Iris por separado",x="Longitud del Pétalo", 
+  y="Ancho del Pétalo", caption="Realizado con ggplot2 de R.")+
+  facet_wrap(~Species)+
+  theme_bw()+
+  nuevotema
+```
+
+##  Gráfico de Barras (Barplots)
+```{r}
+ggplot(data=iris,mapping=aes(x=Species, y=Petal.Width))+
+  geom_bar(stat="identity")
+```
+
+###  Volteo de ejes
+
+Los ejes x e y se pueden voltear usando coord_flip.
+```{r}
+ggplot(data=iris,mapping=aes(x=Species,y=Petal.Width))+
+  geom_bar(stat="identity")+
+  coord_flip()
+```
+
+###  Barras de Error
+
+Un ejemplo del uso de barras de error con puntos. Se calcula la media y la desviación estándar. Esto se usa para crear límites superior e inferior para las barras de error.
+
+
+```{r}
+df_r <- iris %>% # Control Shift M
+  group_by(Species) %>%
+  summarise(n=n(), PROMEDIO = mean(Sepal.Width), DE = sd(Sepal.Width)) %>%
+  mutate(EE = DE/sqrt(n))
+df_r
+```
+
+
+```{r}
+ggplot(df_r, aes(x = Species, y = PROMEDIO, fill = Species)) +
+  geom_bar(position=position_dodge(), stat="identity") +
+  geom_errorbar(aes(ymin=PROMEDIO-EE, ymax = PROMEDIO+EE), color="black", width=0.9, position=position_dodge(0.9))
+```
+
+
+##  GRAFICO DE CAJAS
+###  geom_boxplot
+
+```{r}
+ggplot(iris, aes(x = Species, y = Sepal.Length)) + 
+  geom_boxplot()
+```
+Los boxplots muestran una línea gruesa central (la mediana), una caja, que delimita el primer y tercer cuartil y los bigotes, los cuales se extienden hasta los valores extremos. En el caso que estos valores estén por sobre 1.5 veces la distancia entre el primer y tercer cuartil, estos serán representados por puntos (siendo considerados outlyers). En el gràfico, sólo *Iris virginica* presenta un outlayer en cuanto a las medidas del largo del sépalo.
+
+Los boxplots, como todos los gráficos pueden ser personalizados usando otros argumentos, los que mostraremos en esta sección los iremos introduciendo de a poco. Si quisieramos por ejemplo que el color de las cajas del boxplot fueran de acuerdo a la especie, cambiamos el llenado (fill) de la caja, como vemos en el siguiente gráfico.
+
+```{r}
+ggplot(iris, aes(x = Species, y = Sepal.Length)) + 
+  geom_boxplot(aes(fill = Species))
+```
+##  GRAFICO DE TORTA ()
+
+Para hacer un gráfico de torta con ggplot es necesario efectuar un gráfico de barras, con todas las barras apiladas, después de hacer este gráfico se utiliza la transformación circular coord_polar(theta=“y”) para transformar los valores de las alturas en ángulos. Para este ejemplo necesitarás tener cargada la librería ggplot2 y scales.
+
+Lo primero es tener el  conjunto de datos con categorias y valores. Los valores  son porcentajes y deben sumar 100
+```{r}
+df<-data.frame(Categorias=c("cat1","cat2","cat3","cat4"),
+               Porcentaje=c(25,20,15,40))
+# despúes de esto  ya podemos  hacer nuestro gráfico de barras
+ggplot(df,mapping = aes(x="",y=Porcentaje, fill=Categorias))+
+  geom_bar(stat = "identity",color="white")
+```
+####  Opciones importantes a tener en cuenta
+#####  Dentro de mapping
+
+X="" : Especifica al programa que las barras van apiladas
+y=porcentaje: Le decimos a R que la altura de las barras esta dada por la variable “y”.
+fill=porcentaje: esta opción es muy importante porque de lo contrario no se observa diferencia en las barras, ya que todas se pintarían del mismo color. fill=porcentaje hace que cada barra se coloree de un color especificado por la variable porcentaje y por paleta de colores que este definida, la cual podemos cambiar.
+
+#####  Fuera de mapping y dentro de geom_bar()
+
+stat=“identity”: con esto le decimos al programa que no haga un conteo de alguna variable puesto que ya le indicamos al programa las alturas de las barras con y=“porcentaje”
+color=“white” con esto agregamos un aspecto estético ya que de esta manera los bordes son blancos y se diferencian las barras.
+
+###  Transformado el gráfico de barras al de torta
+
+Para hacer la transformación usamos coord_polar(theta=“y”) con la “y” le indicamos al programa que lo que queremos cambiar en la geometría son las alturas de las barras.
+
+####  Mostrar df
+```{r}
+df
+```
+
+```{r}
+ggplot(df,aes(x="",y=Porcentaje, fill=Categorias))+
+  geom_bar(stat = "identity",color="white")+
+  coord_polar(theta="y")
+```
+
+
+#### Agregando los valores de los porcentajes a las gráficas
+
+Para agregar los valores como texto utilizamos geom_text(), para hacer esto es es necesario tener el texto que queremos agregar (o sea los porcentajes).
+Se hace geom_text(aes(labels=“nuestro texto”),position=postion_stack(vjust=0.5))
+
+```{r}
+ggplot(df,aes(x="",y=Porcentaje, fill=Categorias))+
+  geom_bar(stat = "identity",
+           color="white")+
+    geom_text(aes(label=Porcentaje),
+              position=position_stack(vjust=0.5))
+```
+El parámetro vjust=0.5 hace que los valores se coloquen al 50% de las barras, o sea en medio de cada barra.
+
+#### Juntando el gráfico de pie con texto
+
+Para hacer esto hacemos el gggplot()+geom_bar()+geom_text(), agregando los datos, las estéticas y todos los parametros.
+
+```{r}
+ggplot(df,aes(x="",y=Porcentaje, fill=Categorias))+
+  geom_bar(stat = "identity",
+           color="white")+
+    geom_text(aes(label=Porcentaje),
+              position=position_stack(vjust=0.5),color="white",size=6)+
+  coord_polar(theta = "y")
+```
+
+#### Personalizando nuestro Gráfico
+
+1.- Cambiamos el color con scale_fill_manual(), colocamos en un vector nuestros colores.
+2.- Agregamos el simbolo de porcentaje con el comando percent( de la libreria scales)
+3.- Agregamos título y cambimos tema.
+
+```{r}
+ggplot(df,aes(x="",y=Porcentaje, fill=Categorias))+
+  geom_bar(stat = "identity",
+           color="white")+
+    geom_text(aes(label=percent(Porcentaje/100)),
+              position=position_stack(vjust=0.5),color="white",size=6)+
+  coord_polar(theta = "y")+
+  scale_fill_manual(values=c("salmon","steelblue","orange","gray"))+
+    theme_void()+
+    labs(title="Gráfico de Pie")
+```
+
+
+####  Gráfico de rosca
+
+Para hacer el gráfico de rosca establecemos x=2 y xlim(0.5,2.5) de esta forma al rotar la barra se forma la dona, esto pues la rotación se hace respecto al origen.
+
+```{r}
+ggplot(df,aes(x=2,y=Porcentaje, fill=Categorias))+
+  geom_bar(stat = "identity",
+           color="white")+
+    geom_text(aes(label=percent(Porcentaje/100)),
+              position=position_stack(vjust=0.5),color="white",size=6)+
+  coord_polar(theta = "y")+
+  scale_fill_manual(values=c("salmon","steelblue","orange","gray"))+
+    theme_void()+
+    labs(title="Gráfico de Rosca")+
+  xlim(0.5,2.5)
+```
+
+
+
+
